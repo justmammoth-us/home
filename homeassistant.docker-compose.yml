@@ -1,0 +1,69 @@
+services:
+  homeassistant:
+    image: 'ghcr.io/home-assistant/home-assistant:2026.4.1'
+    environment:
+      - SERVICE_URL_HOMEASSISTANT_8123
+      - 'TZ=${TZ:-UTC}'
+      - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
+    volumes:
+      - 'homeassistant-config:/config'
+      - '/run/dbus:/run/dbus:ro'
+      -
+        type: bind
+        source: ./configuration.yaml
+        target: /config/configuration.yaml
+    privileged: true
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8123'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+  mosquitto:
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    volumes:
+      -
+        type: bind
+        source: ./mosquitto.conf
+        target: /mosquitto/config/mosquitto.conf
+      - './data:/mosquitto/data:rw'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'exit 0'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    entrypoint: "echo -e 'persistence true\npersistence_location /mosquitto/data/\nlog_dest stdout\nlistener 1883\nallow_anonymous true' > /mosquitto/config/mosquitto.conf && exec mosquitto -c /mosquitto/config/mosquitto.conf"
+  zigbee2mqtt:
+    image: ghcr.io/koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - './data:/app/data'
+      - '/run/udev:/run/udev:ro'
+    environment:
+      - TZ=Europe/Berlin
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
+      - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED=true
+      - ZIGBEE2MQTT_MQTT_BASE_TOPIC=zigbee2mqtt
+      - 'ZIGBEE2MQTT_MQTT_SERVER=mqtt://mosquitto:1883'
+    devices:
+      - '/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_e0954829e249ef119ebfc98cff00cc63-if00-port0:/dev/ttyUSB0'
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8080/api/health'
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

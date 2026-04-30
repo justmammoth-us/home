@@ -6,10 +6,10 @@ services:
       - 'TZ=${TZ:-UTC}'
       - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
     volumes:
-      - 'homeassistant_config:/config'
+      - 'homeassistant:/config'
       - '/run/dbus:/run/dbus:ro'
       - type: bind
-        #source: homeassistant
+        source: homeassistant_config
         target: /config/configuration.yaml
         content: |
           # Loads default set of integrations. Do not remove.
@@ -92,3 +92,7 @@ services:
   #    timeout: 5s
   #    retries: 3
   #    start_period: 30s
+
+volumes:
+  homeassistant:
+  homeassistant_config:

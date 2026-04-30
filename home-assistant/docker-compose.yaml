@@ -11,6 +11,7 @@ services:
       - type: bind
         source: homeassistant.yaml
         target: /config/configuration.yaml
+        is_directory: false
         content: |
           # Loads default set of integrations. Do not remove.
           default_config:

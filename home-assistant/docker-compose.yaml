@@ -9,9 +9,8 @@ services:
       - 'homeassistant_config:/config'
       - '/run/dbus:/run/dbus:ro'
       - type: bind
-        source: homeassistant.yaml
+        #source: homeassistant
         target: /config/configuration.yaml
-        is_directory: false
         content: |
           # Loads default set of integrations. Do not remove.
           default_config:

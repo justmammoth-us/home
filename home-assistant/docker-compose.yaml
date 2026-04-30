@@ -10,7 +10,19 @@ services:
       - 'homeassistant_data:/config'
       - '/run/dbus:/run/dbus:ro'
       - type: bind
-        source: ./homeassistant.yaml
+        source: ./automations.yaml
+        target: /config/automations.yaml
+        content: ""
+      - type: bind
+        source: ./scripts.yaml
+        target: /config/scripts.yaml
+        content: ""
+      - type: bind
+        source: ./scenes.yaml
+        target: /config/scenes.yaml
+        content: ""
+      - type: bind
+        source: ./configuration.yaml
         target: /config/configuration.yaml
         content: |
           # Loads default set of integrations. Do not remove.

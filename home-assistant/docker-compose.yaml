@@ -51,45 +51,52 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-  #mosquitto:
-  #  image: eclipse-mosquitto
-  #  restart: unless-stopped
-  #  volumes:
-  #    - source: mosquitto.conf
-  #      target: /mosquitto/config/mosquitto.conf
-  #    - './data:/mosquitto/data:rw'
-  #  entrypoint: "exec mosquitto -c /mosquitto/config/mosquitto.conf"
-  #  healthcheck:
-  #    test:
-  #      - CMD-SHELL
-  #      - 'exit 0'
-  #    interval: 30s
-  #    timeout: 10s
-  #    retries: 3
-  #zigbee2mqtt:
-  #  image: ghcr.io/koenkk/zigbee2mqtt
-  #  restart: unless-stopped
-  #  volumes:
-  #    - './data:/app/data'
-  #    - '/run/udev:/run/udev:ro'
-  #  environment:
-  #    - TZ=Europe/Berlin
-  #    - ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
-  #    - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED=true
-  #    - ZIGBEE2MQTT_MQTT_BASE_TOPIC=zigbee2mqtt
-  #    - 'ZIGBEE2MQTT_MQTT_SERVER=mqtt://mosquitto:1883'
-  #  devices:
-  #    - '/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_e0954829e249ef119ebfc98cff00cc63-if00-port0:/dev/ttyUSB0'
-  #  depends_on:
-  #    mosquitto:
-  #      condition: service_healthy
-  #  healthcheck:
-  #    test:
-  #      - CMD
-  #      - curl
-  #      - '-f'
-  #      - 'http://localhost:8080/api/health'
-  #    interval: 30s
-  #    timeout: 5s
-  #    retries: 3
-  #    start_period: 30s
+  mosquitto:
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    volumes:
+      - 'mosquitto_data:/mosquitto/data:rw'
+      - type: bind
+        source: ./mosquitto.conf
+        target: /mosquitto.conf
+        content: |
+          persistence true
+          persistence_location /mosquitto/data/
+          log_dest stdout
+          listener 1883
+          allow_anonymous true
+    entrypoint: "exec mosquitto -c /mosquitto.conf"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'exit 0'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  zigbee2mqtt:
+    image: ghcr.io/koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - './data:/app/data'
+      - '/run/udev:/run/udev:ro'
+    environment:
+      - TZ=Europe/Berlin
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
+      - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED=true
+      - ZIGBEE2MQTT_MQTT_BASE_TOPIC=zigbee2mqtt
+      - 'ZIGBEE2MQTT_MQTT_SERVER=mqtt://mosquitto:1883'
+    devices:
+      - '/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_e0954829e249ef119ebfc98cff00cc63-if00-port0:/dev/ttyUSB0'
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8080/api/health'
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

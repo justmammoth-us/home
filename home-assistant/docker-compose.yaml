@@ -8,8 +8,6 @@ services:
     volumes:
       - 'homeassistant_config:/config'
       - '/run/dbus:/run/dbus:ro'
-      - source: homeassistant_yaml
-        target: /config/configuration.yaml
     privileged: true
     healthcheck:
       test:
@@ -63,34 +61,3 @@ services:
   #    timeout: 5s
   #    retries: 3
   #    start_period: 30s
-
-configs:
-  homeassistant_yaml:
-    content: |
-      # Loads default set of integrations. Do not remove.
-      default_config:
-
-      automation: !include automations.yaml
-      script: !include scripts.yaml
-      scene: !include scenes.yaml
-
-      # Configuration for reverse proxy support (required for Coolify)
-      http:
-        use_x_forwarded_for: true
-        trusted_proxies:
-          - 10.0.0.0/8
-          - 172.16.0.0/12
-          - 192.168.0.0/16
-        ip_ban_enabled: true
-        login_attempts_threshold: 5
-
-      homeassistant:
-        auth_providers:
-          - type: trusted_networks
-            trusted_networks:
-              - 192.168.0.0/24
-            trusted_users:
-              192.168.0.0/24:
-                - ca92f5f760b6422583c7e771b77ea058
-            allow_bypass_login: true
-          - type: homeassistant

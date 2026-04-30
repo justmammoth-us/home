@@ -58,14 +58,14 @@ services:
       - 'mosquitto_data:/mosquitto/data:rw'
       - type: bind
         source: ./mosquitto.conf
-        target: /mosquitto.conf
+        target: /mosquitto/config/mosquitto.conf
         content: |
           persistence true
           persistence_location /mosquitto/data/
           log_dest stdout
           listener 1883
           allow_anonymous true
-    entrypoint: "exec mosquitto -c /mosquitto.conf"
+    #entrypoint: "exec mosquitto -c /mosquitto/config/mosquitto.conf"
     healthcheck:
       test:
         - CMD-SHELL

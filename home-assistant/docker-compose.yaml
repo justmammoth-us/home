@@ -91,12 +91,24 @@ services:
     volumes:
       - 'zigbee2mqtt_data:/app/data'
       - '/run/udev:/run/udev:ro'
+      - type: bind
+        source: ./zigbee2mqtt/configuration.yaml
+        target: /app/data/configuration.yaml
+        content: |
+          # Zigbee2MQTT configuration
+          version: 5
+          mqtt:
+            base_topic: zigbee2mqtt
+            server: 'mqtt://mosquitto:1883'
+          serial:
+            port: /dev/ttyUSB0
+            adapter: zstack
+          frontend:
+            enabled: true
+          homeassistant:
+            enabled: true
     environment:
-      - TZ=Europe/Berlin
-      - ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
-      - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED=true
-      - ZIGBEE2MQTT_MQTT_BASE_TOPIC=zigbee2mqtt
-      - 'ZIGBEE2MQTT_MQTT_SERVER=mqtt://mosquitto:1883'
+      - TZ=Europe/Paris
     devices:
       - '/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_e0954829e249ef119ebfc98cff00cc63-if00-port0:/dev/ttyUSB0'
     depends_on:

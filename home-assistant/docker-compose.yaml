@@ -40,10 +40,6 @@ services:
                     - ca92f5f760b6422583c7e771b77ea058
                 allow_bypass_login: true
               - type: homeassistant
-    configs:
-      # Map the defined config to the specific path Home Assistant expects
-      - source: ha_configuration
-        target: /config/configuration.yaml
     privileged: true
     healthcheck:
       test:

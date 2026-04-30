@@ -10,19 +10,19 @@ services:
       - 'homeassistant_data:/config'
       - '/run/dbus:/run/dbus:ro'
       - type: bind
-        source: ./automations.yaml
+        source: ./homeassistant/automations.yaml
         target: /config/automations.yaml
         content: ""
       - type: bind
-        source: ./scripts.yaml
+        source: ./homeassistant/scripts.yaml
         target: /config/scripts.yaml
         content: ""
       - type: bind
-        source: ./scenes.yaml
+        source: ./homeassistant/scenes.yaml
         target: /config/scenes.yaml
         content: ""
       - type: bind
-        source: ./configuration.yaml
+        source: ./homeassistant/configuration.yaml
         target: /config/configuration.yaml
         content: |
           # Loads default set of integrations. Do not remove.
@@ -69,7 +69,7 @@ services:
     volumes:
       - 'mosquitto_data:/mosquitto/data:rw'
       - type: bind
-        source: ./mosquitto.conf
+        source: ./mosquitto/mosquitto.conf
         target: /mosquitto/config/mosquitto.conf
         content: |
           persistence true

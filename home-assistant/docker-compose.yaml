@@ -10,10 +10,12 @@ services:
       - 'homeassistant_data:/config'
       - '/run/dbus:/run/dbus:ro'
       - type: bind
+        is_directory: false
         source: ./homeassistant/automations.yaml
         target: /config/automations.yaml
         content: ""
       - type: bind
+        is_directory: false
         source: ./homeassistant/scripts.yaml
         target: /config/scripts.yaml
         content: ""
@@ -22,6 +24,7 @@ services:
         target: /config/scenes.yaml
         content: ""
       - type: bind
+        is_directory: false
         source: ./homeassistant/configuration.yaml
         target: /config/configuration.yaml
         content: |
@@ -69,6 +72,7 @@ services:
     volumes:
       - 'mosquitto_data:/mosquitto/data:rw'
       - type: bind
+        is_directory: false
         source: ./mosquitto/mosquitto.conf
         target: /mosquitto/config/mosquitto.conf
         content: |
@@ -92,6 +96,7 @@ services:
       - 'zigbee2mqtt_data:/app/data'
       - '/run/udev:/run/udev:ro'
       - type: bind
+        is_directory: false
         source: ./zigbee2mqtt/configuration.yaml
         target: /app/data/configuration.yaml
         content: |

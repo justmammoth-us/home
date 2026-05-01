@@ -112,7 +112,7 @@ services:
             enabled: true
             host: 0.0.0.0
             port: 8080
-            url: $SERVICE_URL_ZIGBEE2MQTT
+            url: https://zigbee2mqtt.justmammoth.us
           homeassistant:
             enabled: true
     environment:

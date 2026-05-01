@@ -1,104 +1,80 @@
 services:
-  homeassistant:
-    image: 'ghcr.io/home-assistant/home-assistant:2026.4.1'
-    environment:
-      - SERVICE_URL_HOMEASSISTANT_8123
-      - 'TZ=${TZ:-UTC}'
-      - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
-    volumes:
-      # Use a standard volume for persistent data (database, logs, etc.)
-      - 'homeassistant_data:/config'
-      - '/run/dbus:/run/dbus:ro'
-      - type: bind
-        is_directory: false
-        source: ./homeassistant/automations.yaml
-        target: /config/automations.yaml
-        content: ""
-      - type: bind
-        is_directory: false
-        source: ./homeassistant/scripts.yaml
-        target: /config/scripts.yaml
-        content: ""
-      - type: bind
-        source: ./homeassistant/scenes.yaml
-        target: /config/scenes.yaml
-        content: ""
-      - type: bind
-        is_directory: false
-        source: ./homeassistant/configuration.yaml
-        target: /config/configuration.yaml
-        content: |
-          # Loads default set of integrations. Do not remove.
-          default_config:
+  #homeassistant:
+  #  image: 'ghcr.io/home-assistant/home-assistant:2026.4.1'
+  #  environment:
+  #    - SERVICE_URL_HOMEASSISTANT_8123
+  #    - 'TZ=${TZ:-UTC}'
+  #    - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
+  #  volumes:
+  #    # Use a standard volume for persistent data (database, logs, etc.)
+  #    - 'homeassistant_data:/config'
+  #    - '/run/dbus:/run/dbus:ro'
+  #    - type: bind
+  #      is_directory: false
+  #      source: ./homeassistant/automations.yaml
+  #      target: /config/automations.yaml
+  #      content: ""
+  #    - type: bind
+  #      is_directory: false
+  #      source: ./homeassistant/scripts.yaml
+  #      target: /config/scripts.yaml
+  #      content: ""
+  #    - type: bind
+  #      source: ./homeassistant/scenes.yaml
+  #      target: /config/scenes.yaml
+  #      content: ""
+  #    - type: bind
+  #      is_directory: false
+  #      source: ./homeassistant/configuration.yaml
+  #      target: /config/configuration.yaml
+  #      content: |
+  #        # Loads default set of integrations. Do not remove.
+  #        default_config:
 
-          automation: !include automations.yaml
-          script: !include scripts.yaml
-          scene: !include scenes.yaml
+  #        automation: !include automations.yaml
+  #        script: !include scripts.yaml
+  #        scene: !include scenes.yaml
 
-          # Configuration for reverse proxy support (required for Coolify)
-          http:
-            use_x_forwarded_for: true
-            trusted_proxies:
-              - 10.0.0.0/8
-              - 172.16.0.0/12
-              - 192.168.0.0/16
-            ip_ban_enabled: true
-            login_attempts_threshold: 5
+  #        # Configuration for reverse proxy support (required for Coolify)
+  #        http:
+  #          use_x_forwarded_for: true
+  #          trusted_proxies:
+  #            - 10.0.0.0/8
+  #            - 172.16.0.0/12
+  #            - 192.168.0.0/16
+  #          ip_ban_enabled: true
+  #          login_attempts_threshold: 5
 
-          homeassistant:
-            auth_providers:
-              - type: trusted_networks
-                trusted_networks:
-                  - 192.168.0.0/24
-                trusted_users:
-                  192.168.0.0/24:
-                    - ca92f5f760b6422583c7e771b77ea058
-                allow_bypass_login: true
-              - type: homeassistant
-    privileged: true
-    healthcheck:
-      test:
-        - CMD
-        - curl
-        - '-f'
-        - 'http://localhost:8123'
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
+  #        homeassistant:
+  #          auth_providers:
+  #            - type: trusted_networks
+  #              trusted_networks:
+  #                - 192.168.0.0/24
+  #              trusted_users:
+  #                192.168.0.0/24:
+  #                  - ca92f5f760b6422583c7e771b77ea058
+  #              allow_bypass_login: true
+  #            - type: homeassistant
+  #  privileged: true
+  #  healthcheck:
+  #    test:
+  #      - CMD
+  #      - curl
+  #      - '-f'
+  #      - 'http://localhost:8123'
+  #    interval: 30s
+  #    timeout: 10s
+  #    retries: 3
+  #    start_period: 60s
   mosquitto:
     image: eclipse-mosquitto
     restart: unless-stopped
     volumes:
       - 'mosquitto_data:/mosquitto/data:rw'
-      - type: bind
-        is_directory: false
+      -
+        type: bind
         source: ./mosquitto/mosquitto.conf
         target: /mosquitto/config/mosquitto.conf
-        content: |
-          persistence true
-          persistence_location /mosquitto/data/
-          log_dest stdout
-          listener 1883
-          allow_anonymous true
-    #entrypoint: "exec mosquitto -c /mosquitto/config/mosquitto.conf"
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - 'exit 0'
-      interval: 30s
-      timeout: 10s
-      retries: 3
-  zigbee2mqtt:
-    image: ghcr.io/koenkk/zigbee2mqtt
-    restart: unless-stopped
-    volumes:
-      - 'zigbee2mqtt_data:/app/data'
-      - '/run/udev:/run/udev:ro'
-      - type: bind
-        is_directory: false
-        source: ./zigbee2mqtt/configuration.yaml
-        target: /app/data/configuration.yaml
         content: |
           # Zigbee2MQTT configuration
           version: 5
@@ -115,8 +91,36 @@ services:
             url: https://zigbee2mqtt.justmammoth.us
           homeassistant:
             enabled: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'exit 0'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  zigbee2mqtt:
+    image: ghcr.io/koenkk/zigbee2mqtt
+    restart: unless-stopped
+    volumes:
+      - 'zigbee2mqtt_data:/app/data'
+      - '/run/udev:/run/udev:ro'
+      -
+        type: bind
+        source: ./zigbee2mqtt/configuration.yaml
+        target: /app/data/configuration.yaml
+        read_only: false
+        content: 'version: 5'
     environment:
+      - SERVICE_URL_ZIGBEE2MQTT_8080
       - TZ=Europe/Paris
+      - ZIGBEE2MQTT_CONFIG_MQTT_BASE_TOPIC=zigbee2mqtt
+      - 'ZIGBEE2MQTT_CONFIG_MQTT_SERVER=mqtt://mosquitto:1883'
+      - ZIGBEE2MQTT_CONFIG_SERIAL_PORT=/dev/ttyUSB0
+      - ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER=zstack
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_HOST=0.0.0.0
+      - ZIGBEE2MQTT_CONFIG_FRONTEND_PORT=8080
+      - ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED=true
     devices:
       - '/dev/serial/by-id/usb-ITead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_e0954829e249ef119ebfc98cff00cc63-if00-port0:/dev/ttyUSB0'
     depends_on:
@@ -124,10 +128,8 @@ services:
         condition: service_healthy
     healthcheck:
       test:
-        - CMD
-        - curl
-        - '-f'
-        - 'http://localhost:8080/api/health'
+        - CMD-SHELL
+        - 'wget -q --spider http://127.0.0.1:8080/'
       interval: 30s
       timeout: 5s
       retries: 3

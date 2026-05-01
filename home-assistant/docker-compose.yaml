@@ -76,21 +76,11 @@ services:
         source: ./mosquitto/mosquitto.conf
         target: /mosquitto/config/mosquitto.conf
         content: |
-          # Zigbee2MQTT configuration
-          version: 5
-          mqtt:
-            base_topic: zigbee2mqtt
-            server: 'mqtt://mosquitto:1883'
-          serial:
-            port: /dev/ttyUSB0
-            adapter: zstack
-          frontend:
-            enabled: true
-            host: 0.0.0.0
-            port: 8080
-            url: https://zigbee2mqtt.justmammoth.us
-          homeassistant:
-            enabled: true
+          persistence true
+          persistence_location /mosquitto/data/
+          log_dest stdout
+          listener 1883
+          allow_anonymous true
     healthcheck:
       test:
         - CMD-SHELL

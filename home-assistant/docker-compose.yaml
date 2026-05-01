@@ -92,7 +92,7 @@ services:
     image: ghcr.io/koenkk/zigbee2mqtt
     restart: unless-stopped
     volumes:
-      - 'zigbee2mqtt_data:/app/data:rw'
+      - 'zigbee2mqtt_data:/app/data'
       - '/run/udev:/run/udev:ro'
       #-
       #  type: bind

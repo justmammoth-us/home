@@ -8,20 +8,20 @@ services:
     volumes:
       - homeassistant-config:/config
       - /run/dbus:/run/dbus:ro
-      - type: bind
-        is_directory: false
-        source: ./homeassistant/automations.yaml
-        target: /config/automations.yaml
-        content: ""
-      - type: bind
-        is_directory: false
-        source: ./homeassistant/scripts.yaml
-        target: /config/scripts.yaml
-        content: ""
-      - type: bind
-        source: ./homeassistant/scenes.yaml
-        target: /config/scenes.yaml
-        content: ""
+      #- type: bind
+      #  is_directory: false
+      #  source: ./homeassistant/automations.yaml
+      #  target: /config/automations.yaml
+      #  content: ""
+      #- type: bind
+      #  is_directory: false
+      #  source: ./homeassistant/scripts.yaml
+      #  target: /config/scripts.yaml
+      #  content: ""
+      #- type: bind
+      #  source: ./homeassistant/scenes.yaml
+      #  target: /config/scenes.yaml
+      #  content: ""
       - type: bind
         source: ./configuration.yaml
         target: /config/configuration.yaml
@@ -29,9 +29,9 @@ services:
           # Loads default set of integrations. Do not remove.
           default_config:
 
-          automation: !include automations.yaml
-          script: !include scripts.yaml
-          scene: !include scenes.yaml
+          #automation: !include automations.yaml
+          #script: !include scripts.yaml
+          #scene: !include scenes.yaml
 
           # Configuration for reverse proxy support (required for Coolify)
           http:

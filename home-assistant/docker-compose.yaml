@@ -1,71 +1,71 @@
 services:
-  #homeassistant:
-  #  image: 'ghcr.io/home-assistant/home-assistant:2026.4.1'
-  #  environment:
-  #    - SERVICE_URL_HOMEASSISTANT_8123
-  #    - 'TZ=${TZ:-UTC}'
-  #    - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
-  #  volumes:
-  #    # Use a standard volume for persistent data (database, logs, etc.)
-  #    - 'homeassistant_data:/config'
-  #    - '/run/dbus:/run/dbus:ro'
-  #    - type: bind
-  #      is_directory: false
-  #      source: ./homeassistant/automations.yaml
-  #      target: /config/automations.yaml
-  #      content: ""
-  #    - type: bind
-  #      is_directory: false
-  #      source: ./homeassistant/scripts.yaml
-  #      target: /config/scripts.yaml
-  #      content: ""
-  #    - type: bind
-  #      source: ./homeassistant/scenes.yaml
-  #      target: /config/scenes.yaml
-  #      content: ""
-  #    - type: bind
-  #      is_directory: false
-  #      source: ./homeassistant/configuration.yaml
-  #      target: /config/configuration.yaml
-  #      content: |
-  #        # Loads default set of integrations. Do not remove.
-  #        default_config:
+  homeassistant:
+    image: 'ghcr.io/home-assistant/home-assistant:2026.4.1'
+    environment:
+      - SERVICE_URL_HOMEASSISTANT_8123
+      - 'TZ=${TZ:-UTC}'
+      - 'DISABLE_JEMALLOC=${DISABLE_JEMALLOC:-false}'
+    volumes:
+      # Use a standard volume for persistent data (database, logs, etc.)
+      - 'homeassistant_data:/config'
+      - '/run/dbus:/run/dbus:ro'
+      - type: bind
+        is_directory: false
+        source: ./homeassistant/automations.yaml
+        target: /config/automations.yaml
+        content: ""
+      - type: bind
+        is_directory: false
+        source: ./homeassistant/scripts.yaml
+        target: /config/scripts.yaml
+        content: ""
+      - type: bind
+        source: ./homeassistant/scenes.yaml
+        target: /config/scenes.yaml
+        content: ""
+      - type: bind
+        is_directory: false
+        source: ./homeassistant/configuration.yaml
+        target: /config/configuration.yaml
+        content: |
+          # Loads default set of integrations. Do not remove.
+          default_config:
 
-  #        automation: !include automations.yaml
-  #        script: !include scripts.yaml
-  #        scene: !include scenes.yaml
+          automation: !include automations.yaml
+          script: !include scripts.yaml
+          scene: !include scenes.yaml
 
-  #        # Configuration for reverse proxy support (required for Coolify)
-  #        http:
-  #          use_x_forwarded_for: true
-  #          trusted_proxies:
-  #            - 10.0.0.0/8
-  #            - 172.16.0.0/12
-  #            - 192.168.0.0/16
-  #          ip_ban_enabled: true
-  #          login_attempts_threshold: 5
+          # Configuration for reverse proxy support (required for Coolify)
+          http:
+            use_x_forwarded_for: true
+            trusted_proxies:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+            ip_ban_enabled: true
+            login_attempts_threshold: 5
 
-  #        homeassistant:
-  #          auth_providers:
-  #            - type: trusted_networks
-  #              trusted_networks:
-  #                - 192.168.0.0/24
-  #              trusted_users:
-  #                192.168.0.0/24:
-  #                  - ca92f5f760b6422583c7e771b77ea058
-  #              allow_bypass_login: true
-  #            - type: homeassistant
-  #  privileged: true
-  #  healthcheck:
-  #    test:
-  #      - CMD
-  #      - curl
-  #      - '-f'
-  #      - 'http://localhost:8123'
-  #    interval: 30s
-  #    timeout: 10s
-  #    retries: 3
-  #    start_period: 60s
+          homeassistant:
+            auth_providers:
+              - type: trusted_networks
+                trusted_networks:
+                  - 192.168.0.0/24
+                trusted_users:
+                  192.168.0.0/24:
+                    - ca92f5f760b6422583c7e771b77ea058
+                allow_bypass_login: true
+              - type: homeassistant
+    privileged: true
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8123'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
   mosquitto:
     image: eclipse-mosquitto
     restart: unless-stopped

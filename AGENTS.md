@@ -13,7 +13,7 @@ No build step, no tests, no lint. Validation is `docker compose config` against 
 
 **Never use `${VAR:-default}` syntax inside `volumes:` mount paths.** Coolify's compose preprocessor splits volume specs on `:` and mangles `:-`, producing errors like `invalid spec: /srv/media::`. Volume host paths must use plain `${VAR}` (e.g. `${MEDIA_DIR}/downloads:/downloads`). Defaults are fine in `environment:` and anywhere else.
 
-`DOMAIN` and `MEDIA_DIR` are intentionally **required** (no defaults) — they're set in the Coolify UI, never hardcoded.
+`MEDIA_DIR` is intentionally **required** (no default) — it's set in the Coolify UI, never hardcoded.
 
 ## Image conventions
 
@@ -24,8 +24,8 @@ No build step, no tests, no lint. Validation is `docker compose config` against 
 ## Media stack routing model
 
 - `prowlarr` and `transmission` run with `network_mode: 'service:gluetun'` — all their traffic exits via the VPN. They `depends_on: gluetun (condition: service_healthy)`.
-- Their Traefik labels live on the **gluetun** service, since they share its network namespace. Direct services (sonarr/radarr/bazarr/jellyfin) carry their own Traefik labels.
-- Traefik label pattern per service: `Host(\`<svc>.${DOMAIN}\`)`, entrypoint `https`, `tls=true`, service name = compose service, port = app port (e.g. sonarr 8989, jellyfin 8096).
+- Routing is Coolify-managed, **not** file Traefik labels (Coolify ignores those for routing and its own generated labels carry `traefik.docker.network`). sonarr/radarr/bazarr/jellyfin declare `SERVICE_URL_<SERVICE>_<PORT>` (e.g. `SERVICE_URL_SONARR_8989`) in their `environment:`; values live in the Coolify UI.
+- prowlarr/transmission share gluetun's network namespace and have no container IP, so `SERVICE_URL_*` vars cannot route them. Set **Domains for gluetun** in the Coolify UI: `http://prowlarr.justmammoth.us:9696,http://transmission.justmammoth.us:9091`.
 - All services share one external network `name: ${COOLIFY_NETWORK:-coolify}`.
 - Media paths: `${MEDIA_DIR}/{movies,tv,music,downloads,subtitles}`. Jellyfin mounts `movies`/`tv`/`music` **read-only** under `/media/*`.
 - Transmission peer port `51413/tcp+udp` is published on gluetun.
@@ -33,7 +33,7 @@ No build step, no tests, no lint. Validation is `docker compose config` against 
 ## Environment
 
 - `media/.env.example` is the template; real values live in the Coolify UI, never in the repo.
-- Standard vars: `PUID`/`PGID` (1000), `TZ` (Europe/Paris), `MEDIA_DIR` (/srv/media), `DOMAIN` (justmammoth.us), `COOLIFY_NETWORK` (coolify), `FIREWALL_OUTBOUND_SUBNETS` (172.18.0.0/16), `VPN_*`/`SERVER_REGIONS` for gluetun.
+- Standard vars: `PUID`/`PGID` (1000), `TZ` (Europe/Paris), `MEDIA_DIR` (/srv/media), `COOLIFY_NETWORK` (coolify), `FIREWALL_OUTBOUND_SUBNETS` (172.18.0.0/16), the `SERVICE_URL_<SERVICE>_<PORT>` values, and `VPN_*`/`SERVER_REGIONS` for gluetun. `MEDIA_DIR` is required (no default) — set in the Coolify UI.
 
 ## Renovate
 

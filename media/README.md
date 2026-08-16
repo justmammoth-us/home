@@ -39,7 +39,7 @@ docker compose up -d
 
 1. Create a project → **Docker Compose** resource.
 2. Paste the contents of `docker-compose.yml` (or point the resource at this repo).
-3. Fill the environment variables (VPN credentials, `DOMAIN`, `COOLIFY_NETWORK`) in the Coolify UI — never in the repo.
+3. Fill the environment variables in the Coolify UI — never in the repo: VPN credentials, `COOLIFY_NETWORK`, and the `SERVICE_URL_*` values (e.g. `SERVICE_URL_SONARR_8989=http://sonarr.justmammoth.us:8989`).
 4. Deploy.
 
 ### If the deploy fails with `mutually exclusive network_mode and networks`
@@ -52,8 +52,9 @@ Coolify sometimes injects a `networks:` key into every service, which conflicts 
 
 ### Routing notes
 
-- Do **not** set domains in the Coolify UI for these services — routing is defined by the Traefik labels inside `docker-compose.yml` (single source of truth).
-- prowlarr/transmission share gluetun's network namespace, so their Traefik labels live on the **gluetun** container. Traefik reaches them over the Docker network.
+- Routing is managed by Coolify, not by Traefik labels in this file. sonarr/radarr/bazarr/jellyfin expose themselves via Coolify's `SERVICE_URL_<SERVICE>_<PORT>` magic env vars declared in their `environment:`; Coolify fills their values and generates the proxy routes.
+- prowlarr/transmission share gluetun's network namespace and have no container IP of their own, so `SERVICE_URL_*` vars **cannot** route them. Set **Domains for gluetun** in the Coolify UI instead: `http://prowlarr.justmammoth.us:9696,http://transmission.justmammoth.us:9091`.
+- In Coolify, fill the `SERVICE_URL_*` values (e.g. `http://sonarr.justmammoth.us:8989`) in the app's Environment Variables, then redeploy.
 - `FIREWALL_OUTBOUND_SUBNETS` (default `172.18.0.0/16`) lets the VPN-backed containers reach Sonarr/Radarr on Coolify's network; narrow it if needed.
 - Transmission peer port `51413/tcp+udp` is published for incoming torrent connections.
 

@@ -1,6 +1,6 @@
 services:
   gluetun:
-    image: qmcgaw/gluetun:v3
+    image: ghcr.io/qdm12/gluetun:v3
     cap_add:
       - NET_ADMIN
     devices:
@@ -148,8 +148,10 @@ services:
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
 
   jellyfin:
-    image: jellyfin/jellyfin:10.10
+    image: lscr.io/linuxserver/jellyfin:10.10.7
     environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - jellyfin-config:/config

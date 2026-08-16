@@ -13,6 +13,8 @@ services:
       - SERVER_REGIONS=${SERVER_REGIONS:-}
       - FIREWALL_OUTBOUND_SUBNETS=${FIREWALL_OUTBOUND_SUBNETS:-172.18.0.0/16}
       - TZ=${TZ:-Europe/Paris}
+      - SERVICE_URL_PROWLARR_9696
+      - SERVICE_URL_TRANSMISSION_9091
     volumes:
       - gluetun-data:/gluetun
     restart: unless-stopped

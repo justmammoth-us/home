@@ -6,6 +6,8 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     environment:
+      - SERVICE_URL_TRANSMISSION_9091
+      - SERVICE_URL_PROWLARR_9696
       - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
       - VPN_TYPE=openvpn
       - OPENVPN_USER=${VPN_USER}

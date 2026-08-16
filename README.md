@@ -46,19 +46,20 @@ A VPN-routed *arr stack and media server, with everything except VPN-bound apps 
    | `VPN_USER` / `VPN_PASS` | OpenVPN credentials (default provider: Private Internet Access) |
    | `DOMAIN` | Base domain for the Traefik routes (default `justmammoth.us`) |
    | `COOLIFY_NETWORK` | Coolify proxy network name (default `coolify`) |
+   | `MEDIA_DIR` | Host path for media libraries (default `/srv/media`) |
    | `PUID` / `PGID` / `TZ` | LinuxServer.io standard user/group/timezone (defaults `1000` / `1000` / `Europe/Paris`) |
    | `SERVER_REGIONS` | Optional: restrict VPN to specific regions |
-   | `FIREWALL_OUTBOUND_SUBNETS` | Outbound subnets allowed through the VPN firewall (defaults to the Coolify Docker subnet `172.0.0.0/8`) |
+   | `FIREWALL_OUTBOUND_SUBNETS` | Outbound subnets allowed through the VPN firewall (defaults to the Coolify Docker subnet `172.18.0.0/16`) |
 
 3. For the smart home stack, create the external network in Coolify first, then deploy `home-assistant/docker-compose.yaml`. Bind mounts for `configuration.yaml` and `mosquitto.conf` are provided inline in the compose file.
 4. Ensure the host has the media directories available, e.g.:
 
    ```bash
-   mkdir -p /srv/media/{tv,movies,music,downloads,subtitles}
+   mkdir -p ${MEDIA_DIR:-/srv/media}/{tv,movies,music,downloads,subtitles}
    ```
 
 ## Notes
 
 - The Traefik labels and the external network name (`coolify`) are set up to work with Coolify's proxy; adjust `COOLIFY_NETWORK` if you renamed it.
-- Jellyfin also publishes `8096` directly on the host for local clients.
-- VPN-bound services publish `9091` / `9696` to `127.0.0.1` only for local access; the subdomains for `prowlarr` and `transmission` are routed via gluetun in Coolify's proxy.
+- Media libraries are mounted read-only into Jellyfin.
+- Transmission's peer port `51413/tcp+udp` is published for incoming torrent connections.

@@ -1,0 +1,179 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:v3
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${VPN_USER}
+      - OPENVPN_PASSWORD=${VPN_PASS}
+      - SERVER_REGIONS=${SERVER_REGIONS:-}
+      - FIREWALL_OUTBOUND_SUBNETS=${FIREWALL_OUTBOUND_SUBNETS:-172.18.0.0/16}
+      - TZ=${TZ:-Europe/Paris}
+    ports:
+      - "51413:51413/tcp"
+      - "51413:51413/udp"
+    volumes:
+      - gluetun-data:/gluetun
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8000/v1/openvpn/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.prowlarr.entryPoints=https
+      - traefik.http.routers.prowlarr.tls=true
+      - traefik.http.routers.prowlarr.service=prowlarr
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
+      - traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.transmission.entryPoints=https
+      - traefik.http.routers.transmission.tls=true
+      - traefik.http.routers.transmission.service=transmission
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.5.2
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - prowlarr-config:/config
+    restart: unless-stopped
+
+  transmission:
+    image: lscr.io/linuxserver/transmission:4.1.3
+    network_mode: "service:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - transmission-config:/config
+      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:4.0.19
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - sonarr-config:/config
+      - ${MEDIA_DIR:-/srv/media}/tv:/tv
+      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8989 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.sonarr.entryPoints=https
+      - traefik.http.routers.sonarr.tls=true
+      - traefik.http.routers.sonarr.service=sonarr
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:6.3.0
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - radarr-config:/config
+      - ${MEDIA_DIR:-/srv/media}/movies:/movies
+      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:7878 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.radarr.entryPoints=https
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.service=radarr
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:1.6.0
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - bazarr-config:/config
+      - ${MEDIA_DIR:-/srv/media}/movies:/movies
+      - ${MEDIA_DIR:-/srv/media}/tv:/tv
+      - ${MEDIA_DIR:-/srv/media}/subtitles:/subtitles
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:6767 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.bazarr.entryPoints=https
+      - traefik.http.routers.bazarr.tls=true
+      - traefik.http.routers.bazarr.service=bazarr
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+
+  jellyfin:
+    image: jellyfin/jellyfin:10.10
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - ${MEDIA_DIR:-/srv/media}/movies:/media/movies:ro
+      - ${MEDIA_DIR:-/srv/media}/tv:/media/tv:ro
+      - ${MEDIA_DIR:-/srv/media}/music:/media/music:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8096/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.jellyfin.entryPoints=https
+      - traefik.http.routers.jellyfin.tls=true
+      - traefik.http.routers.jellyfin.service=jellyfin
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+
+networks:
+  default:
+    name: ${COOLIFY_NETWORK:-coolify}
+    external: true
+
+volumes:
+  gluetun-data:
+  prowlarr-config:
+  transmission-config:
+  sonarr-config:
+  radarr-config:
+  bazarr-config:
+  jellyfin-config:
+  jellyfin-cache:

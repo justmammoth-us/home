@@ -61,7 +61,7 @@ services:
       retries: 3
       start_period: 60s
   mosquitto:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:2.0.22
     restart: unless-stopped
     volumes:
       - 'mosquitto_data:/mosquitto/data:rw'
@@ -83,7 +83,7 @@ services:
       timeout: 10s
       retries: 3
   zigbee2mqtt:
-    image: ghcr.io/koenkk/zigbee2mqtt
+    image: ghcr.io/koenkk/zigbee2mqtt:2.10.1
     restart: unless-stopped
     volumes:
       - 'zigbee2mqtt_data:/app/data'

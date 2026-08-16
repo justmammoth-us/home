@@ -1,0 +1,13 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["after 8am every weekday"],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^lscr\\.io/linuxserver/"],
+      "groupName": "linuxserver images",
+      "automerge": false
+    }
+  ]
+}

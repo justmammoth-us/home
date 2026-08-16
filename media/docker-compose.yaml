@@ -26,12 +26,12 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN}`)
       - traefik.http.routers.prowlarr.entryPoints=https
       - traefik.http.routers.prowlarr.tls=true
       - traefik.http.routers.prowlarr.service=prowlarr
       - traefik.http.services.prowlarr.loadbalancer.server.port=9696
-      - traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.transmission.rule=Host(`transmission.${DOMAIN}`)
       - traefik.http.routers.transmission.entryPoints=https
       - traefik.http.routers.transmission.tls=true
       - traefik.http.routers.transmission.service=transmission
@@ -84,7 +84,7 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN}`)
       - traefik.http.routers.sonarr.entryPoints=https
       - traefik.http.routers.sonarr.tls=true
       - traefik.http.routers.sonarr.service=sonarr
@@ -108,7 +108,7 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN}`)
       - traefik.http.routers.radarr.entryPoints=https
       - traefik.http.routers.radarr.tls=true
       - traefik.http.routers.radarr.service=radarr
@@ -133,7 +133,7 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN}`)
       - traefik.http.routers.bazarr.entryPoints=https
       - traefik.http.routers.bazarr.tls=true
       - traefik.http.routers.bazarr.service=bazarr
@@ -157,7 +157,7 @@ services:
       retries: 5
     labels:
       - traefik.enable=true
-      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN:-justmammoth.us}`)
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${DOMAIN}`)
       - traefik.http.routers.jellyfin.entryPoints=https
       - traefik.http.routers.jellyfin.tls=true
       - traefik.http.routers.jellyfin.service=jellyfin

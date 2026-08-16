@@ -44,7 +44,7 @@ A VPN-routed *arr stack and media server, with everything except VPN-bound apps 
    | Variable | Purpose |
    | --- | --- |
    | `VPN_USER` / `VPN_PASS` | OpenVPN credentials (default provider: Private Internet Access) |
-   | `DOMAIN` | Base domain for the Traefik routes (default `justmammoth.us`) |
+   | `DOMAIN` | Base domain for the Traefik routes (e.g. `example.com`), required |
    | `COOLIFY_NETWORK` | Coolify proxy network name (default `coolify`) |
    | `MEDIA_DIR` | Host path for media libraries (default `/srv/media`) |
    | `PUID` / `PGID` / `TZ` | LinuxServer.io standard user/group/timezone (defaults `1000` / `1000` / `Europe/Paris`) |

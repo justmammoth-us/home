@@ -46,13 +46,13 @@ A VPN-routed *arr stack and media server, with everything except VPN-bound apps 
    | `VPN_USER` / `VPN_PASS` | OpenVPN credentials (default provider: Private Internet Access) |
    | `DOMAIN` | Base domain for the Traefik routes (e.g. `example.com`), required |
    | `COOLIFY_NETWORK` | Coolify proxy network name (default `coolify`) |
-   | `MEDIA_DIR` | Host path for media libraries (default `/srv/media`) |
+   | `MEDIA_DIR` | Host path for media libraries (e.g. `/srv/media`), required |
    | `PUID` / `PGID` / `TZ` | LinuxServer.io standard user/group/timezone (defaults `1000` / `1000` / `Europe/Paris`) |
    | `SERVER_REGIONS` | Optional: restrict VPN to specific regions |
    | `FIREWALL_OUTBOUND_SUBNETS` | Outbound subnets allowed through the VPN firewall (defaults to the Coolify Docker subnet `172.18.0.0/16`) |
 
 3. For the smart home stack, create the external network in Coolify first, then deploy `home-assistant/docker-compose.yaml`. Bind mounts for `configuration.yaml` and `mosquitto.conf` are provided inline in the compose file.
-4. Ensure the host has the media directories available, e.g.:
+4. Set `DOMAIN`, `MEDIA_DIR`, and `COOLIFY_NETWORK` in the Coolify UI environment variables, and ensure the media directories exist on the host, e.g.:
 
    ```bash
    mkdir -p ${MEDIA_DIR:-/srv/media}/{tv,movies,music,downloads,subtitles}

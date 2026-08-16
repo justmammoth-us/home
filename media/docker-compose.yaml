@@ -14,13 +14,21 @@ services:
       - FIREWALL_OUTBOUND_SUBNETS=${FIREWALL_OUTBOUND_SUBNETS:-172.18.0.0/16}
       - TZ=${TZ:-Europe/Paris}
     ports:
-      - "51413:51413/tcp"
-      - "51413:51413/udp"
+      - '51413:51413/tcp'
+      - '51413:51413/udp'
     volumes:
       - gluetun-data:/gluetun
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8000/v1/openvpn/status"]
+      test:
+        [
+          'CMD',
+          'wget',
+          '-q',
+          '-O',
+          '/dev/null',
+          'http://localhost:8000/v1/openvpn/status',
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -39,7 +47,7 @@ services:
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:2.5.2
-    network_mode: "service:gluetun"
+    network_mode: 'service:gluetun'
     depends_on:
       gluetun:
         condition: service_healthy
@@ -53,7 +61,7 @@ services:
 
   transmission:
     image: lscr.io/linuxserver/transmission:4.1.3
-    network_mode: "service:gluetun"
+    network_mode: 'service:gluetun'
     depends_on:
       gluetun:
         condition: service_healthy
@@ -63,7 +71,7 @@ services:
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - transmission-config:/config
-      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+      - ${MEDIA_DIR}/downloads:/downloads
     restart: unless-stopped
 
   sonarr:
@@ -74,11 +82,11 @@ services:
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - sonarr-config:/config
-      - ${MEDIA_DIR:-/srv/media}/tv:/tv
-      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+      - ${MEDIA_DIR}/tv:/tv
+      - ${MEDIA_DIR}/downloads:/downloads
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8989 || exit 1"]
+      test: ['CMD-SHELL', 'curl -fs http://localhost:8989 || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -98,11 +106,11 @@ services:
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - radarr-config:/config
-      - ${MEDIA_DIR:-/srv/media}/movies:/movies
-      - ${MEDIA_DIR:-/srv/media}/downloads:/downloads
+      - ${MEDIA_DIR}/movies:/movies
+      - ${MEDIA_DIR}/downloads:/downloads
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:7878 || exit 1"]
+      test: ['CMD-SHELL', 'curl -fs http://localhost:7878 || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -122,12 +130,12 @@ services:
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - bazarr-config:/config
-      - ${MEDIA_DIR:-/srv/media}/movies:/movies
-      - ${MEDIA_DIR:-/srv/media}/tv:/tv
-      - ${MEDIA_DIR:-/srv/media}/subtitles:/subtitles
+      - ${MEDIA_DIR}/movies:/movies
+      - ${MEDIA_DIR}/tv:/tv
+      - ${MEDIA_DIR}/subtitles:/subtitles
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:6767 || exit 1"]
+      test: ['CMD-SHELL', 'curl -fs http://localhost:6767 || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -146,12 +154,12 @@ services:
     volumes:
       - jellyfin-config:/config
       - jellyfin-cache:/cache
-      - ${MEDIA_DIR:-/srv/media}/movies:/media/movies:ro
-      - ${MEDIA_DIR:-/srv/media}/tv:/media/tv:ro
-      - ${MEDIA_DIR:-/srv/media}/music:/media/music:ro
+      - ${MEDIA_DIR}/movies:/media/movies:ro
+      - ${MEDIA_DIR}/tv:/media/tv:ro
+      - ${MEDIA_DIR}/music:/media/music:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:8096/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -fs http://localhost:8096/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5

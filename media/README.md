@@ -53,10 +53,10 @@ Coolify sometimes injects a `networks:` key into every service, which conflicts 
 ### Routing notes
 
 - Routing is managed by Coolify, not by Traefik labels in this file. sonarr/radarr/bazarr/jellyfin expose themselves via Coolify's `SERVICE_URL_<SERVICE>_<PORT>` magic env vars declared in their `environment:`; Coolify fills their values and generates the proxy routes.
-- prowlarr/transmission share gluetun's network namespace and have no container IP of their own, so `SERVICE_URL_*` vars **cannot** route them. Set **Domains for gluetun** in the Coolify UI instead: `http://prowlarr.justmammoth.us:9696,http://transmission.justmammoth.us:9091`.
+- prowlarr/transmission share gluetun's network namespace and have no container IP of their own, so `SERVICE_URL_*` vars **cannot** route them. gluetun declares `expose: [9696, 9091]` as the routing target; their domains must be added **manually** in the Coolify UI (**Domains for gluetun**), then redeploy to regenerate the routes.
 - In Coolify, fill the `SERVICE_URL_*` values (e.g. `http://sonarr.justmammoth.us:8989`) in the app's Environment Variables, then redeploy.
 - `FIREWALL_OUTBOUND_SUBNETS` (default `172.18.0.0/16`) lets the VPN-backed containers reach Sonarr/Radarr on Coolify's network; narrow it if needed.
-- Transmission peer port `51413/tcp+udp` is published for incoming torrent connections.
+- gluetun publishes **no host ports** — the tunnel + Coolify proxy is the only exposure. PIA port forwarding is not enabled, so no inbound peer connections (outbound-only torrenting).
 
 ## Gotchas
 

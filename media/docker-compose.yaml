@@ -35,17 +35,19 @@ services:
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:2.5.2
-    network_mode: 'service:gluetun'
-    depends_on:
-      gluetun:
-        condition: service_healthy
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Paris}
+      - SERVICE_URL_PROWLARR_9696
     volumes:
       - prowlarr-config:/config
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -fs http://localhost:9696 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   transmission:
     image: lscr.io/linuxserver/transmission:4.1.3

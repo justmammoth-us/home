@@ -49,12 +49,27 @@ services:
       timeout: 10s
       retries: 5
 
+  media-init:
+    image: alpine:3.20
+    command:
+      [
+        'sh',
+        '-c',
+        'mkdir -p /media/tv /media/movies /media/downloads /media/music /media/subtitles && chown -R ${PUID:-1000}:${PGID:-1000} /media',
+      ]
+    volumes:
+      - ${MEDIA_DIR}:/media
+    restart: "no"
+    exclude_from_hc: true
+
   transmission:
     image: lscr.io/linuxserver/transmission:4.1.3
     network_mode: 'service:gluetun'
     depends_on:
       gluetun:
         condition: service_healthy
+      media-init:
+        condition: service_completed_successfully
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -66,6 +81,9 @@ services:
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:4.0.19
+    depends_on:
+      media-init:
+        condition: service_completed_successfully
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -73,8 +91,7 @@ services:
       - SERVICE_URL_SONARR_8989
     volumes:
       - sonarr-config:/config
-      - ${MEDIA_DIR}/tv:/tv
-      - ${MEDIA_DIR}/downloads:/downloads
+      - ${MEDIA_DIR}:/downloads
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:8989 || exit 1']
@@ -84,6 +101,9 @@ services:
 
   radarr:
     image: lscr.io/linuxserver/radarr:6.3.0
+    depends_on:
+      media-init:
+        condition: service_completed_successfully
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -91,8 +111,7 @@ services:
       - SERVICE_URL_RADARR_7878
     volumes:
       - radarr-config:/config
-      - ${MEDIA_DIR}/movies:/movies
-      - ${MEDIA_DIR}/downloads:/downloads
+      - ${MEDIA_DIR}:/downloads
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:7878 || exit 1']
@@ -102,6 +121,9 @@ services:
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:1.6.0
+    depends_on:
+      media-init:
+        condition: service_completed_successfully
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -109,9 +131,7 @@ services:
       - SERVICE_URL_BAZARR_6767
     volumes:
       - bazarr-config:/config
-      - ${MEDIA_DIR}/movies:/movies
-      - ${MEDIA_DIR}/tv:/tv
-      - ${MEDIA_DIR}/subtitles:/subtitles
+      - ${MEDIA_DIR}:/downloads
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:6767 || exit 1']
@@ -121,6 +141,9 @@ services:
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:10.10.7
+    depends_on:
+      media-init:
+        condition: service_completed_successfully
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -129,9 +152,7 @@ services:
     volumes:
       - jellyfin-config:/config
       - jellyfin-cache:/cache
-      - ${MEDIA_DIR}/movies:/media/movies:ro
-      - ${MEDIA_DIR}/tv:/media/tv:ro
-      - ${MEDIA_DIR}/music:/media/music:ro
+      - ${MEDIA_DIR}:/media:ro
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:8096/health || exit 1']

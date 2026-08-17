@@ -55,7 +55,7 @@ services:
       [
         'sh',
         '-c',
-        'mkdir -p /downloads/tv /downloads/movies /downloads/music && chown -R ${PUID:-1000}:${PGID:-1000} /downloads',
+        'mkdir -p /downloads/tv /downloads/movies /downloads/music /downloads/complete /downloads/incomplete && chown -R ${PUID:-1000}:${PGID:-1000} /downloads',
       ]
     volumes:
       - ${MEDIA_DIR}:/downloads

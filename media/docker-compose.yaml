@@ -55,10 +55,10 @@ services:
       [
         'sh',
         '-c',
-        'mkdir -p /media/tv /media/movies /media/downloads /media/music && chown -R ${PUID:-1000}:${PGID:-1000} /media',
+        'mkdir -p /downloads/tv /downloads/movies /downloads/music && chown -R ${PUID:-1000}:${PGID:-1000} /downloads',
       ]
     volumes:
-      - ${MEDIA_DIR}:/media
+      - ${MEDIA_DIR}:/downloads
     restart: 'no'
     exclude_from_hc: true
 
@@ -152,7 +152,7 @@ services:
     volumes:
       - jellyfin-config:/config
       - jellyfin-cache:/cache
-      - ${MEDIA_DIR}:/media:ro
+      - ${MEDIA_DIR}:/downloads:ro
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:8096/health || exit 1']

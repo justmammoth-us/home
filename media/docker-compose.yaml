@@ -59,7 +59,7 @@ services:
       ]
     volumes:
       - ${MEDIA_DIR}:/media
-    restart: "no"
+    restart: 'no'
     exclude_from_hc: true
 
   transmission:
@@ -76,7 +76,7 @@ services:
       - TZ=${TZ:-Europe/Paris}
     volumes:
       - transmission-config:/config
-      - ${MEDIA_DIR}/downloads:/downloads
+      - ${MEDIA_DIR}:/downloads
     restart: unless-stopped
 
   sonarr:

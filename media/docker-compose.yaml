@@ -170,6 +170,29 @@ services:
       timeout: 10s
       retries: 5
 
+  seerr:
+    image: ghcr.io/seerr-team/seerr:v3.4.1
+    init: true
+    depends_on:
+      media-init:
+        condition: service_completed_successfully
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+      - LOG_LEVEL=info
+      - SERVICE_URL_SEERR_5055
+    volumes:
+      - seerr-config:/app/config
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 networks:
   default:
     name: ${COOLIFY_NETWORK:-coolify}
@@ -184,3 +207,4 @@ volumes:
   bazarr-config:
   jellyfin-config:
   jellyfin-cache:
+  seerr-config:

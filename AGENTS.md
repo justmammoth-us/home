@@ -4,7 +4,7 @@
 
 Docker Compose stacks for self-hosted home services, deployed via Coolify:
 
-- `media/` — *arr stack (prowlarr, transmission, sonarr, radarr, bazarr, jellyfin) with gluetun VPN for transmission
+- `media/` — *arr stack (prowlarr, transmission, sonarr, radarr, bazarr, jellyfin, seerr) with gluetun VPN for transmission
 - `home-assistant/` — homeassistant, mosquitto, zigbee2mqtt
 
 No build step, no tests, no lint. Validation is `docker compose config` against the compose files (with required env vars supplied).
@@ -24,7 +24,7 @@ No build step, no tests, no lint. Validation is `docker compose config` against 
 ## Media stack routing model
 
 - `transmission` runs with `network_mode: 'service:gluetun-transmission'` — its traffic exits via the VPN. It `depends_on: gluetun-transmission (condition: service_healthy)`.
-- Routing is Coolify-managed, **not** file Traefik labels (Coolify ignores those for routing and its own generated labels carry `traefik.docker.network`). prowlarr/sonarr/radarr/bazarr/jellyfin declare `SERVICE_URL_<SERVICE>_<PORT>` (e.g. `SERVICE_URL_SONARR_8989`) in their `environment:`; values live in the Coolify UI.
+- Routing is Coolify-managed, **not** file Traefik labels (Coolify ignores those for routing and its own generated labels carry `traefik.docker.network`). prowlarr/sonarr/radarr/bazarr/jellyfin/seerr declare `SERVICE_URL_<SERVICE>_<PORT>` (e.g. `SERVICE_URL_SONARR_8989`) in their `environment:`; values live in the Coolify UI.
 - `transmission` shares gluetun-transmission's network namespace and has no container IP, so `SERVICE_URL_*` vars cannot route it. gluetun-transmission declares `expose: [9091]` as the routing target; its domain must be added **manually** in the Coolify UI (**Domains for gluetun-transmission**), then redeploy to regenerate the routes.
 - gluetun-transmission publishes **no host ports**. It only masks the IP of transmission; PIA port forwarding is not enabled, so no inbound peer connections (outbound-only torrenting, fine).
 - All services share one external network `name: ${COOLIFY_NETWORK:-coolify}`.

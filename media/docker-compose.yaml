@@ -1,5 +1,5 @@
 services:
-  gluetun:
+  gluetun-transmission:
     image: ghcr.io/qdm12/gluetun:v3.41.3
     cap_add:
       - NET_ADMIN
@@ -17,7 +17,7 @@ services:
       - TZ=${TZ:-Europe/Paris}
       - DNS_SERVERS=1.1.1.1,1.0.0.1
       - DOT=on
-      - SERVICE_URL_GLUETUN_9091=http://transmission.${DOMAIN}
+      - SERVICE_URL_GLUETUN-TRANSMISSION_9091
     volumes:
       - gluetun-data:/gluetun
     restart: unless-stopped
@@ -66,9 +66,9 @@ services:
 
   transmission:
     image: lscr.io/linuxserver/transmission:4.1.3
-    network_mode: 'service:gluetun'
+    network_mode: 'service:gluetun-transmission'
     depends_on:
-      gluetun:
+      gluetun-transmission:
         condition: service_healthy
       media-init:
         condition: service_completed_successfully

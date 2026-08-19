@@ -162,9 +162,7 @@ services:
     volumes:
       - jellyfin-config:/config
       - jellyfin-cache:/cache
-      - ${MEDIA_DIR}/movies:/media/movies:ro
-      - ${MEDIA_DIR}/tv:/media/tv:ro
-      - ${MEDIA_DIR}/music:/media/music:ro
+      - ${MEDIA_DIR}:/downloads
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'curl -fs http://localhost:8096/health || exit 1']

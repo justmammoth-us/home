@@ -17,6 +17,7 @@ services:
       - TZ=${TZ:-Europe/Paris}
       - DNS_SERVERS=1.1.1.1,1.0.0.1
       - DOT=on
+      - SERVICE_URL_GLUETUN_9091=http://transmission.${DOMAIN}
     volumes:
       - gluetun-data:/gluetun
     restart: unless-stopped

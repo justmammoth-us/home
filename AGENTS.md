@@ -4,7 +4,7 @@
 
 Docker Compose stacks for self-hosted home services, deployed via Coolify:
 
-- `media/` — gluetun-routed *arr stack (prowlarr, transmission, sonarr, radarr, bazarr, jellyfin)
+- `media/` — *arr stack (prowlarr, transmission, sonarr, radarr, bazarr, jellyfin) with gluetun VPN for transmission
 - `home-assistant/` — homeassistant, mosquitto, zigbee2mqtt
 
 No build step, no tests, no lint. Validation is `docker compose config` against the compose files (with required env vars supplied).
@@ -23,10 +23,10 @@ No build step, no tests, no lint. Validation is `docker compose config` against 
 
 ## Media stack routing model
 
-- `prowlarr` and `transmission` run with `network_mode: 'service:gluetun'` — all their traffic exits via the VPN. They `depends_on: gluetun (condition: service_healthy)`.
-- Routing is Coolify-managed, **not** file Traefik labels (Coolify ignores those for routing and its own generated labels carry `traefik.docker.network`). sonarr/radarr/bazarr/jellyfin declare `SERVICE_URL_<SERVICE>_<PORT>` (e.g. `SERVICE_URL_SONARR_8989`) in their `environment:`; values live in the Coolify UI.
-- prowlarr/transmission share gluetun's network namespace and have no container IP, so `SERVICE_URL_*` vars cannot route them. gluetun declares `expose: [9696, 9091]` as the routing target; their domains must be added **manually** in the Coolify UI (**Domains for gluetun**), then redeploy to regenerate the routes.
-- gluetun publishes **no host ports**. It only masks the IP of prowlarr/transmission; PIA port forwarding is not enabled, so no inbound peer connections (outbound-only torrenting, fine).
+- `transmission` runs with `network_mode: 'service:gluetun'` — its traffic exits via the VPN. It `depends_on: gluetun (condition: service_healthy)`.
+- Routing is Coolify-managed, **not** file Traefik labels (Coolify ignores those for routing and its own generated labels carry `traefik.docker.network`). prowlarr/sonarr/radarr/bazarr/jellyfin declare `SERVICE_URL_<SERVICE>_<PORT>` (e.g. `SERVICE_URL_SONARR_8989`) in their `environment:`; values live in the Coolify UI.
+- `transmission` shares gluetun's network namespace and has no container IP, so `SERVICE_URL_*` vars cannot route it. gluetun declares `expose: [9091]` as the routing target; its domain must be added **manually** in the Coolify UI (**Domains for gluetun**), then redeploy to regenerate the routes.
+- gluetun publishes **no host ports**. It only masks the IP of transmission; PIA port forwarding is not enabled, so no inbound peer connections (outbound-only torrenting, fine).
 - All services share one external network `name: ${COOLIFY_NETWORK:-coolify}`.
 - Media paths: `${MEDIA_DIR}/{movies,tv,music,downloads,subtitles}`. Jellyfin mounts `movies`/`tv`/`music` **read-only** under `/media/*`.
 

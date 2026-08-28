@@ -83,7 +83,7 @@ services:
       timeout: 10s
       retries: 3
   zigbee2mqtt:
-    image: ghcr.io/koenkk/zigbee2mqtt:2.10.1
+    image: ghcr.io/koenkk/zigbee2mqtt:2.13.0
     restart: unless-stopped
     volumes:
       - 'zigbee2mqtt_data:/app/data'
